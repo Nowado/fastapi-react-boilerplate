@@ -1,0 +1,12 @@
+fastapi >= 0.74.0
+SQLAlchemy >= 1.4.31
+databases >= 0.5.5
+pydantic
+email-validator
+asyncpg
+SQLAlchemy-Utils
+passlib
+psycopg2
+aiosqlite
+fastapi_users[sqlalchemy2,oauth]
+fastapi_users_db_sqlalchemy

@@ -1,0 +1,107 @@
+version: "3.9"
+
+networks:
+  internal:
+    external: false
+  #isolation-network:
+    #driver: bridge
+    #external: false
+    
+services:
+  app:
+    volumes:
+        - ./app:/app/app
+    build: .
+    env_file:
+        - ${ENV_FILE}
+    command: uvicorn app.main:app --host 0.0.0.0 --port ${API_PORT}
+    networks:
+      - internal
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.fastapi.rule=Host(`${API_HOSTNAME}`)
+      - traefik.http.routers.fastapi.tls=${ENABLE_TLS}
+      - traefik.docker.network=internal
+      - traefik.http.routers.fastapi.tls.certresolver=lets-encrypt
+      - traefik.http.services.fastapi.loadbalancer.server.port=${API_PORT}
+    depends_on:
+      db:
+        condition: service_healthy
+        
+  db:
+    image: postgres:14
+#    ports:
+#      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: ${PGDATA}
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./data:/data
+    labels:
+      - traefik.enable=false
+      
+  frontend:
+    volumes:
+      - ./frontend/src:/front/src
+      - /front/node_modules
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - FRONT_CMD=${FRONT_CMD}
+        - API_HOSTNAME=${API_HOSTNAME}
+        - FRONT_PORT=${FRONT_PORT}
+    env_file:
+        - .env.dev
+    networks:
+      - internal
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.front.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.front.tls=${ENABLE_TLS}
+      - traefik.docker.network=internal
+      - traefik.http.routers.front.tls.certresolver=lets-encrypt
+      - traefik.http.services.front.loadbalancer.server.port=${FRONT_PORT}
+
+  traefik:
+    image: "traefik:v2.6"
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=${API_INSECURE}"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=${ENABLE_TLS}"
+      #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      #- "--certificatesresolvers.myresolver.acme.email={EMAIL}@${DOMAIN}.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "${TRAEFIK_PORTS}"
+      - "8080:8080"
+    networks:
+      - internal
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  whoami:
+    image: "traefik/whoami"
+    container_name: "whoami"
+    labels:
+      - "traefik.enable=${ENABLE_TLS}"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=myresolver"
