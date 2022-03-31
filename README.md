@@ -21,7 +21,7 @@ Setup your (Postgres) database and adjust .env/.env.dev parts that describe data
 **For development**  `docker-compose --env-file .\.env.dev up` should start your project. In order to avoid rebuilding everything after every change point your IDE to frontend and app containers.
 
 **For production**  Edit .env to attach your domain. You may want to uncomment `#- "--certificatesresolvers.myresolver.acme.email={EMAIL}@${DOMAIN}.com"
-` in docker-compose.yml for Let's Encrypt notifications.`docker-compose --env-file .\.env up` should start your project.
+` in docker-compose.yml and edit EMAIL var for Let's Encrypt notifications.`docker-compose --env-file .\.env up` should start your project.
 
 ## That's all
 
