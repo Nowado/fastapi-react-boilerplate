@@ -5,7 +5,7 @@ from .routers import users, items
 import os
 
 # http vs https based on TLS setting
-if os.environ['TLS'] == 'true':
+if os.environ['ENABLE_TLS'] == 'true':
     FRONT_DOMAIN = 'https://'+os.environ['DOMAIN']
 else:
     FRONT_DOMAIN = 'http://'+os.environ['DOMAIN']
