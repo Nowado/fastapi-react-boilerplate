@@ -3,9 +3,6 @@ version: "3.9"
 networks:
   internal:
     external: false
-  #isolation-network:
-    #driver: bridge
-    #external: false
     
 services:
   app:
@@ -30,8 +27,6 @@ services:
         
   db:
     image: postgres:14
-#    ports:
-#      - ${POSTGRES_PORT}:${POSTGRES_PORT}
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
