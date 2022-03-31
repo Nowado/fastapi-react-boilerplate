@@ -60,7 +60,7 @@ services:
         - API_HOSTNAME=${API_HOSTNAME}
         - FRONT_PORT=${FRONT_PORT}
     env_file:
-        - .env.dev
+        - ${ENV_FILE}
     networks:
       - internal
     labels:
