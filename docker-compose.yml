@@ -9,6 +9,7 @@ services:
     volumes:
         - ./app:/app/app
     build: .
+    restart: ${RESTART}
     env_file:
         - ${ENV_FILE}
     command: uvicorn app.main:app --host 0.0.0.0 --port ${API_PORT}
@@ -27,6 +28,7 @@ services:
         
   db:
     image: postgres:14
+    restart: ${RESTART}
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -43,11 +45,13 @@ services:
       - ./data:/data
     labels:
       - traefik.enable=false
+
       
   frontend:
     volumes:
       - ./frontend/src:/front/src
       - /front/node_modules
+    restart: ${RESTART}
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -69,6 +73,7 @@ services:
 
   traefik:
     image: "traefik:v2.6"
+    restart: ${RESTART}
     container_name: "traefik"
     command:
       #- "--log.level=DEBUG"
@@ -94,6 +99,7 @@ services:
 
   whoami:
     image: "traefik/whoami"
+    restart: ${RESTART}
     container_name: "whoami"
     labels:
       - "traefik.enable=${ENABLE_TLS}"
