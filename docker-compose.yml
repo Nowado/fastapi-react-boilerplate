@@ -64,11 +64,11 @@ services:
       - boilerplate_network
     labels:
       - traefik.enable=true
-      - traefik.http.routers.front.rule=Host(`${DOMAIN}`)
-      - traefik.http.routers.front.tls=${ENABLE_TLS}
+      - traefik.http.routers.frontend.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.frontend.tls=${ENABLE_TLS}
       - traefik.docker.network=boilerplate_network
-      - traefik.http.routers.front.tls.certresolver=myresolver
-      - traefik.http.services.front.loadbalancer.server.port=${FRONT_PORT}
+      - traefik.http.routers.frontend.tls.certresolver=myresolver
+      - traefik.http.services.frontend.loadbalancer.server.port=${FRONT_PORT}
 
   traefik:
     image: "traefik:v2.6"
