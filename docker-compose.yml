@@ -1,7 +1,7 @@
 version: "3.9"
 
 networks:
-  internal:
+  boilerplate_network:
     external: false
     
 services:
@@ -14,12 +14,12 @@ services:
         - ${ENV_FILE}
     command: uvicorn app.main:app --host 0.0.0.0 --port ${API_PORT}
     networks:
-      - internal
+      - boilerplate_network
     labels:
       - traefik.enable=true
       - traefik.http.routers.fastapi.rule=Host(`${API_HOSTNAME}`)
       - traefik.http.routers.fastapi.tls=${ENABLE_TLS}
-      - traefik.docker.network=internal
+      - traefik.docker.network=boilerplate_network
       - traefik.http.routers.fastapi.tls.certresolver=myresolver
       - traefik.http.services.fastapi.loadbalancer.server.port=${API_PORT}
     depends_on:
@@ -35,9 +35,9 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       PGDATA: ${PGDATA}
     networks:
-      - internal
+      - boilerplate_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -45,7 +45,6 @@ services:
       - ./data:/data
     labels:
       - traefik.enable=false
-
       
   frontend:
     volumes:
@@ -62,12 +61,12 @@ services:
     env_file:
         - ${ENV_FILE}
     networks:
-      - internal
+      - boilerplate_network
     labels:
       - traefik.enable=true
       - traefik.http.routers.front.rule=Host(`${DOMAIN}`)
       - traefik.http.routers.front.tls=${ENABLE_TLS}
-      - traefik.docker.network=internal
+      - traefik.docker.network=boilerplate_network
       - traefik.http.routers.front.tls.certresolver=myresolver
       - traefik.http.services.front.loadbalancer.server.port=${FRONT_PORT}
 
@@ -91,7 +90,7 @@ services:
       - "${TRAEFIK_PORTS}"
       - "8080:8080"
     networks:
-      - internal
+      - boilerplate_network
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./letsencrypt:/letsencrypt
