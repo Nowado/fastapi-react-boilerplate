@@ -20,7 +20,7 @@ services:
       - traefik.http.routers.fastapi.rule=Host(`${API_HOSTNAME}`)
       - traefik.http.routers.fastapi.tls=${ENABLE_TLS}
       - traefik.docker.network=internal
-      - traefik.http.routers.fastapi.tls.certresolver=lets-encrypt
+      - traefik.http.routers.fastapi.tls.certresolver=myresolver
       - traefik.http.services.fastapi.loadbalancer.server.port=${API_PORT}
     depends_on:
       db:
@@ -68,7 +68,7 @@ services:
       - traefik.http.routers.front.rule=Host(`${DOMAIN}`)
       - traefik.http.routers.front.tls=${ENABLE_TLS}
       - traefik.docker.network=internal
-      - traefik.http.routers.front.tls.certresolver=lets-encrypt
+      - traefik.http.routers.front.tls.certresolver=myresolver
       - traefik.http.services.front.loadbalancer.server.port=${FRONT_PORT}
 
   traefik:
@@ -83,10 +83,10 @@ services:
       - "--entrypoints.web.address=:80"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.lets-encrypt.acme.tlschallenge=${ENABLE_TLS}"
-      #- "--certificatesresolvers.lets-encrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
-      #- "--certificatesresolvers.lets-encrypt.acme.email={EMAIL}@${DOMAIN}.com"
-      - "--certificatesresolvers.lets-encrypt.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=${ENABLE_TLS}"
+      #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      #- "--certificatesresolvers.myresolver.acme.email={EMAIL}@${DOMAIN}.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "${TRAEFIK_PORTS}"
       - "8080:8080"
@@ -105,4 +105,4 @@ services:
       - "traefik.enable=${ENABLE_TLS}"
       - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
       - "traefik.http.routers.whoami.entrypoints=websecure"
-      - "traefik.http.routers.whoami.tls.certresolver=lets-encrypt"
+      - "traefik.http.routers.whoami.tls.certresolver=myresolver"
