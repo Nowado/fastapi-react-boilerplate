@@ -1,32 +1,17 @@
-import React from "react";
 import { BrowserRouter, Route, Link, Routes } from "react-router-dom";
 import SignInSide from "./SignInSide";
 import ProtectedRoutes from "./ProtectedRoutes";
 import SignUp from "./SignUp"
 import Logout from "./Logout"
 import ResetPassword from "./ResetPassword"
-import { element } from "prop-types";
+import Sidebar from './Sidebar';
 
 export default function App() {
   return (
-    <BrowserRouter >
-      <div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/login">Login</Link>
-            </li>
-            <li>
-              <Link to="/register">Register</Link>
-            </li>
-            <li>
-              <Link to="/logout">Logout</Link>
-            </li>
-          </ul>
-        </nav>
+    <div className="App" id="outer-container">
+      <Sidebar pageWrapId={'page-wrap'} outerContainerId={'outer-container'} />
+      <div id="page-wrap">
+        <BrowserRouter >
           <Routes>
             {/* <Route path="/" element={<Home />} /> */}
             <Route element={<ProtectedRoutes type="private" />}>
@@ -41,8 +26,9 @@ export default function App() {
               <Route path="/test2"/> // If you ever need to test empty path for redirect
             </Route>
           </Routes>
+        </BrowserRouter >
       </div>
-    </BrowserRouter >
+    </div>
   );
 }
 
