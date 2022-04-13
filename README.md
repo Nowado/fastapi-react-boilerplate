@@ -1,6 +1,6 @@
 # FastAPI + React boilerplate
 
-This is a, fairly opinionated, minimal boilerplate of FastAPI backend, React frontend for a Postgres database setup organized within docker-compose for convenient local development and deployment. Think https://github.com/tiangolo/full-stack-fastapi-postgresql with **way** less bells and whistles.
+This is a, fairly opinionated, minimal boilerplate of FastAPI backend, React frontend and SQLAlchemy setup organized within docker-compose for convenient local development and deployment. Think https://github.com/tiangolo/full-stack-fastapi-postgresql with **way** less bells and whistles.
 
 #### Why?
 
