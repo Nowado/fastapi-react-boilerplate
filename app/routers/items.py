@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 from typing import List
 from sqlalchemy.orm import Session
-from ..database import  ItemTable, UserTable,  get_async_session
+from ..database import  ItemTable, User,  get_async_session
 from .users import current_user
-from ..models import ItemCreate, Item, User, ItemWithOwners
+from ..models import ItemCreate, Item, ItemWithOwners
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 import copy
@@ -15,7 +15,7 @@ router = APIRouter()
 async def create_item_for_user(
     item: ItemCreate, db: Session = Depends(get_async_session), user: User = Depends(current_user)
 ):
-    current_usertable = await db.execute(select(UserTable).filter(UserTable.id == user.id))
+    current_usertable = await db.execute(select(User).filter(User.id == user.id))
     current_usertable = current_usertable.scalars().first()
     db_item = ItemTable(**item.dict())
     db.add(db_item)

@@ -13,5 +13,7 @@ ENV REACT_APP_API_HOSTNAME=$API_HOSTNAME
 ENV PORT=$FRONT_PORT
 
 COPY . .
-RUN npm i @emotion/react @emotion/styled
+RUN npm install @mui/material @mui/styles
+RUN npm i @emotion/react @emotion/styled 
+RUN npm install react-burger-menu
 CMD $FRONT_CMD

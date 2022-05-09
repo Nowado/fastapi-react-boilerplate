@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Optional
-from fastapi_users import models
-from fastapi_users.authentication.strategy.db import BaseAccessToken
+from fastapi_users import schemas
+import uuid
 
 
 class ItemBase(BaseModel):
@@ -20,32 +20,24 @@ class Item(ItemBase):
 
 
 class ItemWithOwners(Item):
-    owners: Optional[List['User']] = []
+    owners: Optional[List['UserRead']] = []
 
 
-class User(models.BaseUser):
+class UserRead(schemas.BaseUser[uuid.UUID]):
 
     class Config:
         orm_mode = True
 
 
-class UserWithItems(User):
+class UserWithItems(UserRead):
     items: Optional[List['Item']] = []
 
 
-class UserCreate(models.BaseUserCreate):
+class UserCreate(schemas.BaseUserCreate):
     pass
 
 
-class UserUpdate(models.BaseUserUpdate):
-    pass
-
-
-class UserDB(User, models.BaseUserDB):
-    pass
-
-
-class AccessToken(BaseAccessToken):
+class UserUpdate(schemas.BaseUserUpdate):
     pass
 
 
