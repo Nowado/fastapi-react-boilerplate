@@ -17,19 +17,22 @@ cookie_transport = CookieTransport(cookie_max_age=3600)
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 
 
+def get_jwt_strategy() -> JWTStrategy:
+    return JWTStrategy(secret=SECRET, lifetime_seconds=3600)
+
+
 def get_database_strategy(
     access_token_db: AccessTokenDatabase[AccessToken] = Depends(get_access_token_db),
 ) -> DatabaseStrategy:
     return DatabaseStrategy(access_token_db, lifetime_seconds=3600)
 
 
-auth_backend_bearer = AuthenticationBackend(
-    name="bearer",
+jwt_auth_backend = AuthenticationBackend(
+    name="jwt",
     transport=bearer_transport,
     get_strategy=get_database_strategy,
 )
-
-auth_backend_cookie = AuthenticationBackend(
+cookie_auth_backend = AuthenticationBackend(
     name="cookie",
     transport=cookie_transport,
     get_strategy=get_database_strategy,
@@ -60,17 +63,17 @@ async def get_user_manager(user_db=Depends(get_user_db)):
 
 fastapi_users = FastAPIUsers[User, uuid.UUID](
     get_user_manager,
-    [auth_backend_cookie, auth_backend_bearer],
+    [cookie_auth_backend, jwt_auth_backend],
 )
 
 router = APIRouter()
 router.include_router(
-    fastapi_users.get_auth_router(auth_backend_bearer),
+    fastapi_users.get_auth_router(jwt_auth_backend),
     prefix="/auth/jwt",
     tags=["auth"],
 )
 router.include_router(
-    fastapi_users.get_auth_router(auth_backend_cookie),
+    fastapi_users.get_auth_router(jwt_auth_backend),
     prefix="/auth/jwt/cookie",
     tags=["auth"],
 )
@@ -96,29 +99,12 @@ router.include_router(
 )
 
 
-def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(secret=SECRET, lifetime_seconds=3600)
+# async def get_enabled_backends(request: Request):
+#     """Return the enabled dependencies following custom logic."""
+#     if request.url.path == "/protected-route-only-jwt":
+#         return [jwt_auth_backend]
+#     else:
+#         return [cookie_auth_backend, jwt_auth_backend]
 
-
-jwt_backend = AuthenticationBackend(
-    name="jwt",
-    transport=bearer_transport,
-    get_strategy=get_jwt_strategy,
-)
-cookie_backend = AuthenticationBackend(
-    name="cookie",
-    transport=cookie_transport,
-    get_strategy=get_jwt_strategy,
-)
-
-
-async def get_enabled_backends(request: Request):
-    """Return the enabled dependencies following custom logic."""
-    if request.url.path == "/protected-route-only-jwt":
-        return [jwt_backend]
-    else:
-        return [cookie_backend, jwt_backend]
-
-current_active_user = fastapi_users.current_user(active=True, get_enabled_backends=get_enabled_backends)
-current_user = fastapi_users.current_user()
+current_active_user = fastapi_users.current_user(active=True)
 

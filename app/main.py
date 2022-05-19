@@ -25,6 +25,7 @@ def get_db():
 origins = [
     FRONT_DOMAIN,
 ]
+print(origins)
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,7 +36,9 @@ app.add_middleware(
 )
 
 app.include_router(users.router)
-app.include_router(items.router)
+app.include_router(items.router,
+                   prefix="/items",
+                   tags=["items"])
 
 
 @app.on_event("startup")

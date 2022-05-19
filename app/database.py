@@ -26,19 +26,28 @@ Base = declarative_base()
 ItemOwner = Table('itemowner',
                   Base.metadata,
                   Column('itemId', Integer, ForeignKey('items.id'), primary_key=True),
-                  Column('userId', UUID(as_uuid=True), ForeignKey('user.id'), primary_key=True)
+                  Column('userId', UUID(as_uuid=True), ForeignKey('user.id'), primary_key=True),
                   )
+
+
+ItemAccess = Table('itemaccess',
+                   Base.metadata,
+                   Column('itemId', Integer, ForeignKey('items.id'), primary_key=True),
+                   Column('userId', UUID(as_uuid=True), ForeignKey('user.id'), primary_key=True),
+                   )
 
 
 class ItemTable(Base):
     __tablename__ = "items"
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
-    owners = relationship("UserTable", secondary=ItemOwner, back_populates="items", lazy='selectin')
+    owners = relationship("User", secondary=ItemOwner, back_populates="items_owned", lazy='selectin')
+    access_granted = relationship("User", secondary=ItemAccess, back_populates="items_available", lazy='selectin')
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
-    items = relationship("ItemTable", secondary=ItemOwner, back_populates="owners", lazy='selectin')
+    items_owned = relationship("ItemTable", secondary=ItemOwner, back_populates="owners", lazy='selectin')
+    items_available = relationship("ItemTable", secondary=ItemAccess, back_populates="access_granted", lazy='selectin')
 
 
 class AccessToken(SQLAlchemyBaseAccessTokenTableUUID, Base):

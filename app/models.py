@@ -19,8 +19,12 @@ class Item(ItemBase):
         orm_mode = True
 
 
-class ItemWithOwners(Item):
+class ItemOwned(Item):
     owners: Optional[List['UserRead']] = []
+
+
+class ItemAvailable(Item):
+    accessible_to: Optional[List['UserRead']] = []
 
 
 class UserRead(schemas.BaseUser[uuid.UUID]):
@@ -30,7 +34,8 @@ class UserRead(schemas.BaseUser[uuid.UUID]):
 
 
 class UserWithItems(UserRead):
-    items: Optional[List['Item']] = []
+    items_owned: Optional[List['Item']] = []
+    items_available: Optional[List['Item']] = []
 
 
 class UserCreate(schemas.BaseUserCreate):
@@ -42,4 +47,6 @@ class UserUpdate(schemas.BaseUserUpdate):
 
 
 UserWithItems.update_forward_refs()
-ItemWithOwners.update_forward_refs()
+ItemOwned.update_forward_refs()
+ItemAvailable.update_forward_refs()
+

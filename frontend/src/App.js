@@ -3,6 +3,7 @@ import SignInSide from "./SignInSide";
 import ProtectedRoutes from "./ProtectedRoutes";
 import SignUp from "./SignUp"
 import Logout from "./Logout"
+import Items from "./Items";
 import ResetPassword from "./ResetPassword"
 import Sidebar from './Sidebar';
 
@@ -18,6 +19,7 @@ export default function App() {
               <Route path="/logout" element={<Logout />} />
               <Route path="/" element={<Home />} />
               <Route path="/test"/> // If you ever need to test empty path for redirect
+              <Route path="/items" element={<Items />} />
             </Route>
             <Route element={<ProtectedRoutes type="guest" />}>
               <Route path="/login" element={<SignInSide />} />
