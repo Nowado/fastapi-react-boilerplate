@@ -27,6 +27,8 @@ ItemOwner = Table('itemowner',
                   Base.metadata,
                   Column('itemId', Integer, ForeignKey('items.id'), primary_key=True),
                   Column('userId', UUID(as_uuid=True), ForeignKey('user.id'), primary_key=True),
+                  Column('time_created', DateTime(timezone=True), server_default=func.now()),
+                  Column('time_updated', DateTime(timezone=True), onupdate=func.now()),
                   )
 
 
@@ -34,6 +36,8 @@ ItemAccess = Table('itemaccess',
                    Base.metadata,
                    Column('itemId', Integer, ForeignKey('items.id'), primary_key=True),
                    Column('userId', UUID(as_uuid=True), ForeignKey('user.id'), primary_key=True),
+                   Column('time_created', DateTime(timezone=True), server_default=func.now()),
+                   Column('time_updated', DateTime(timezone=True), onupdate=func.now()),
                    )
 
 

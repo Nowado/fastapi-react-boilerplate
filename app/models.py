@@ -14,6 +14,8 @@ class ItemCreate(ItemBase):
 
 class Item(ItemBase):
     id: int
+    time_created:  Optional[datetime]
+    time_updated: Optional[datetime]
 
     class Config:
         orm_mode = True

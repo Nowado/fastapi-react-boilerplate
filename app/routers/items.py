@@ -30,12 +30,13 @@ async def post_item(
     response_model=List[Item])
 async def get_items(
         item_id: Optional[int] = None,
+        count: Optional[int] = 5,
         db: Session = Depends(get_async_session), user: User = Depends(current_active_user),
 ):
     items = []
     itemtable = None
     if item_id:
-        itemtable = await db.execute(select(ItemTable).filter(ItemTable.id == item_id))
+        itemtable = await db.execute(select(ItemTable).filter(ItemTable.id == item_id).order_by(ItemTable.time_created))
         # print(itemtable)
     else:
         itemtable = await db.execute(select(ItemTable))
@@ -53,7 +54,7 @@ async def get_items(
             access_filtered_items.append(item)
     if len(access_filtered_items) < 1:  # Probably better to return example of List[Item] at some point
         raise HTTPException(status_code=404, detail="Item not found")
-    return access_filtered_items
+    return access_filtered_items[:count]
 
 
 @router.put(
