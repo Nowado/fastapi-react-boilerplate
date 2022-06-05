@@ -85,18 +85,9 @@ async def update_items(
     for item in access_filtered_items:  # Perform update
         for item_in in items_in:
             if item_in.id == item.id:
-                new_item = ItemTable(**item_in.dict())
-                await db.delete(item)
-                db.add(new_item)
-                user.items_owned.remove(item)
-                user.items_owned.append(new_item)
-                user.items_available.remove(item)
-                user.items_available.append(new_item)
-                db.add(user)
-                await db.commit()
-                items_out.append(new_item)
+                await db.execute(update(ItemTable).where(ItemTable.id == item_in.id).values(text=item_in.text))  # for whatever god forsaken reason, when inheriting from ItemTable you still need to use ItemTable and not child class name here
+                items_out.append(ItemTable(**item_in.dict()))
     return items_out
-
 
 @router.delete(
     "/",
