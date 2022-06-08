@@ -1,6 +1,6 @@
 from fastapi import Depends
 from typing import AsyncGenerator
-from fastapi_users.db import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
+from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
 from fastapi_users_db_sqlalchemy.access_token import (
     SQLAlchemyAccessTokenDatabase,
     SQLAlchemyBaseAccessTokenTableUUID,
@@ -8,9 +8,10 @@ from fastapi_users_db_sqlalchemy.access_token import (
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
-from sqlalchemy import Column, Integer, ForeignKey, Table, String
+from sqlalchemy import Column, ForeignKey, Table, Integer, DateTime, Text
 from sqlalchemy.dialects.postgresql import UUID
-from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
+import uuid
+from sqlalchemy.sql import func
 import os
 
 DATABASE_URL_ASYNC = "postgresql+asyncpg://" + os.environ['DATABASE_USER'] + ":" + os.environ['DATABASE_PASSWORD'] +\
@@ -44,7 +45,7 @@ ItemAccess = Table('itemaccess',
 class ItemTable(Base):
     __tablename__ = "items"
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
+    text = Column('text', Text)
     owners = relationship("User", secondary=ItemOwner, back_populates="items_owned", lazy='selectin')
     access_granted = relationship("User", secondary=ItemAccess, back_populates="items_available", lazy='selectin')
 

@@ -1,11 +1,12 @@
 from pydantic import BaseModel
 from typing import List, Optional
 from fastapi_users import schemas
+from datetime import datetime
 import uuid
 
 
 class ItemBase(BaseModel):
-    title: str
+    pass
 
 
 class ItemCreate(ItemBase):
@@ -13,7 +14,7 @@ class ItemCreate(ItemBase):
 
 
 class Item(ItemBase):
-    id: int
+    id: uuid.UUID
     time_created:  Optional[datetime]
     time_updated: Optional[datetime]
 
