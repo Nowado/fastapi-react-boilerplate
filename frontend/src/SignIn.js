@@ -3,8 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -14,10 +12,12 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
 
+import { useSignIn } from 'react-auth-kit'
 
 const theme = createTheme();
 
 export default function SignIn() {
+  const signIn = useSignIn();
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -30,7 +30,18 @@ export default function SignIn() {
         },
       },
       )
-      .then((response) => console.log(response))
+      .then((response) => {
+        if (signIn({
+          token: response.data.token,
+          expiresIn: 60, // response.data.expiresIn, this should be, ideally, grabbed from server response
+          tokenType: "Bearer",
+          authState: response.data.authUserState,
+        })) {
+          // console.log(signIn);
+        } else {
+          console.log("signIn failed");
+        }
+      })
       .catch((error) => console.log(error));
     };
 
@@ -87,7 +98,6 @@ export default function SignIn() {
                   Forgot password?
                 </Link>
               </Grid>
-
             </Grid>
           </Box>
         </Box>
