@@ -73,8 +73,8 @@ router.include_router(
     tags=["auth"],
 )
 router.include_router(
-    fastapi_users.get_auth_router(jwt_auth_backend),
-    prefix="/auth/jwt/cookie",
+    fastapi_users.get_auth_router(cookie_auth_backend),
+    prefix="/auth/cookie",
     tags=["auth"],
 )
 router.include_router(
