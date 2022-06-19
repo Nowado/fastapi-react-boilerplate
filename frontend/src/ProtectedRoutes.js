@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useLocation } from "react-router";
-import { useIsAuthenticated } from 'react-auth-kit';
+import { isAuthenticated } from "./auth";
 
 // const useAuth = () => {
 //   const token = sessionStorage.getItem('token');
@@ -8,17 +8,10 @@ import { useIsAuthenticated } from 'react-auth-kit';
 // };
 
 const ProtectedRoutes = (scenario) => {
-  const isAuth = useIsAuthenticated()
+  const isAuth = isAuthenticated();
   const location = useLocation();
-  console.log(useIsAuthenticated())
-  // return isAuth ? (
-  //   <Outlet />
-  // ) : (
-  //   <Navigate to="/login" replace state={{ from: location }} />
-  // );
-  const guest_case = scenario['type'] === "guest" && isAuth
-  const private_case = scenario['type'] === "private" && !isAuth
-  if (scenario['type'] === "guest") return !isAuth ? <Outlet /> : <Navigate to="/" />;
+
+  if (scenario['type'] === "guest") return !isAuth ? <Outlet /> : <Navigate to="/" replace state={{ from: location }}/>;
   else if (scenario['type'] === "private") return isAuth ? <Outlet /> : <Navigate to="/login" replace state={{ from: location }} />;
   else return isAuth ? <Outlet /> : <Navigate to="/potato" />;
 };

@@ -11,13 +11,16 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
+import { Navigate, Outlet } from "react-router-dom";
+import { useLocation } from "react-router";
 
-import { useSignIn } from 'react-auth-kit'
+import { signInToken } from './auth';
 
 const theme = createTheme();
 
 export default function SignIn() {
-  const signIn = useSignIn();
+  const signIn = signInToken;
+  const location = useLocation();
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -31,13 +34,12 @@ export default function SignIn() {
       },
       )
       .then((response) => {
-        if (signIn({
-          token: response.data.token,
-          expiresIn: 60, // response.data.expiresIn, this should be, ideally, grabbed from server response
-          tokenType: "Bearer",
-          authState: response.data.authUserState,
-        })) {
-          // console.log(signIn);
+        // console.log(response);
+        if (signIn(
+          response.data.access_token,
+          3600, // response.data.expiresIn, this should be, ideally, grabbed from server response
+        )) {
+          window.location.reload(); // workaround because redirect in ProtectedRoutes doesn't work
         } else {
           console.log("signIn failed");
         }

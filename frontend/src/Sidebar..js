@@ -1,43 +1,46 @@
 import { slide as Menu } from 'react-burger-menu'
 import './Sidebar.css';
+import { signOut, isAuthenticated } from './auth';
+import { Button } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+// import LogoutIcon from '@mui/icons-material/Logout';
 
-const useAuth = () => {
-  const token = sessionStorage.getItem('token');
-  return Boolean(token);
-};
+const theme = createTheme();
 
 export default props => {
-  const isAuth = useAuth();
-  if (isAuth){
+  const useAuth = isAuthenticated()
+  if (useAuth) {
     return (
-      <Menu>
-        <a className="sidebar-item" href="/">
-        Home
-        </a>
-        <a className="sidebar-item" href="/items">
-        Items
-        </a>
-        <a className="sidebar-item" href="/logout">
-        Logout
-        </a>
-      </Menu>
+      <ThemeProvider theme={theme}>
+        <Menu>
+          <Button variant="contained" href="/">
+            Home
+          </Button>
+          <Button variant="contained" href="/items">
+            Items
+          </Button>
+          <Button variant="contained" onClick={() => signOut()}
+            href="/">
+            Sign Out
+          </Button>
+        </Menu>
+      </ThemeProvider>
     );
   }
   return (
-    <Menu>
-      <a className="sidebar-item" href="/">
-      Home
-      </a>
-      <a className="sidebar-item" href="/login">
-      Login
-      </a>
-      <a className="sidebar-item" href="/register">
-      Register
-      </a>
-      <a className="sidebar-item" href="/logout">
-      Logout
-      </a>
-    </Menu>
+    <ThemeProvider theme={theme}>
+      <Menu>
+        <Button variant="contained" href="/">
+        Home
+      </Button>
+      <Button variant="contained" href="/login">
+        Login
+      </Button>
+      <Button variant="contained" href="/register" >
+        Register
+      </Button >
+    </Menu >
+    </ThemeProvider >
   );
 };
 
