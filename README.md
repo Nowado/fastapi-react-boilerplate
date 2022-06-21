@@ -25,6 +25,8 @@ Following instruction assumes Compose V2, but you *should* be able to run in 1.3
 **For production**  Edit .env to attach your domain. You may want to uncomment `#- "--certificatesresolvers.myresolver.acme.email={EMAIL}@${DOMAIN}.com"
 ` in docker-compose.yml and edit EMAIL var for Let's Encrypt notifications.`docker compose --env-file .env up` should start your project.
 
+Frontend file structure allows for working with Docker Desktop on Windows. That's just how I roll, if you are a better person you can easily reorganize them into folders.
+
 ## That's all
 
 The project is intentionally miminal. It does however welcome contributions, especially from less frontend challenged developers, extra especially from those with any aesthetic sense, as both capabilities are severely missing in original creator.
