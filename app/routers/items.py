@@ -1,28 +1,48 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
-from ..database import ItemTable, User,  get_async_session
+from ..database import ItemTable, User, get_async_session
 from .users import current_active_user
-from ..models import ItemCreate, Item, ItemOwned
+from ..models import ItemCreate, Item
 from sqlalchemy.future import select
 from typing import Optional
+from sqlalchemy import update
 
 router = APIRouter()
 
 
+# @router.post(
+#     "/",
+#     response_model=Item)
+# async def post_item(
+#         item: ItemCreate, db: Session = Depends(get_async_session), user: User = Depends(current_active_user),
+# ):
+#     db_item = ItemTable(**item.dict())
+#     db.add(db_item)
+#     user.items_owned.append(db_item)
+#     user.items_available.append(db_item)
+#     db.add(user)
+#     await db.commit()
+#     itemtable = await db.execute(select(ItemTable).filter(ItemTable.id == db_item.id))  # Solves greenlet_spawn
+#     return db_item
+
 @router.post(
     "/",
-    response_model=Item)
+    response_model=List[Item])
 async def post_item(
-        item: ItemCreate, db: Session = Depends(get_async_session), user: User = Depends(current_active_user),
+        items: List[ItemCreate], db: Session = Depends(get_async_session), user: User = Depends(current_active_user),
 ):
-    db_item = ItemTable(**item.dict())
-    db.add(db_item)
-    user.items_owned.append(db_item)
-    user.items_available.append(db_item)
-    db.add(user)
-    await db.commit()
-    return db_item
+    out_items = []
+    for item in items:
+        db_item = ItemTable(**item.dict())
+        db.add(db_item)
+        user.items_owned.append(db_item)
+        user.items_available.append(db_item)
+        db.add(user)
+        await db.commit()
+        await db.execute(select(ItemTable).filter(ItemTable.id == db_item.id))  # Solves greenlet_spawn
+        out_items.append(db_item)
+    return out_items
 
 
 @router.get(
@@ -30,13 +50,12 @@ async def post_item(
     response_model=List[Item])
 async def get_items(
         item_id: Optional[int] = None,
-        count: Optional[int] = 5,
         db: Session = Depends(get_async_session), user: User = Depends(current_active_user),
 ):
     items = []
     itemtable = None
     if item_id:
-        itemtable = await db.execute(select(ItemTable).filter(ItemTable.id == item_id).order_by(ItemTable.time_created))
+        itemtable = await db.execute(select(ItemTable).filter(ItemTable.id == item_id))
         # print(itemtable)
     else:
         itemtable = await db.execute(select(ItemTable))
@@ -54,7 +73,7 @@ async def get_items(
             access_filtered_items.append(item)
     if len(access_filtered_items) < 1:  # Probably better to return example of List[Item] at some point
         raise HTTPException(status_code=404, detail="Item not found")
-    return access_filtered_items[:count]
+    return access_filtered_items
 
 
 @router.put(
@@ -85,9 +104,11 @@ async def update_items(
     for item in access_filtered_items:  # Perform update
         for item_in in items_in:
             if item_in.id == item.id:
-                await db.execute(update(ItemTable).where(ItemTable.id == item_in.id).values(text=item_in.text))  # for whatever god forsaken reason, when inheriting from ItemTable you still need to use ItemTable and not child class name here
+                await db.execute(update(ItemTable).where(ItemTable.id == item_in.id).values(text=item_in.text))
+                await db.commit()  # really not sure why it's needed here
                 items_out.append(ItemTable(**item_in.dict()))
     return items_out
+
 
 @router.delete(
     "/",
