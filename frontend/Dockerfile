@@ -10,4 +10,5 @@ ENV PORT=$FRONT_PORT
 
 COPY . .
 RUN npm install
+CMD npm install -g serve
 CMD $FRONT_CMD
