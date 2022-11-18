@@ -7,6 +7,7 @@ import Sidebar from './Sidebar.';
 import Home from "./Home";
 import ResetPassword from "./ResetPassword";
 import Items from "./Items";
+import PrivacyPolicy from './PrivacyPolicy';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               <Route path="/register" element={<SignUp />} />
               {/* <Route path="/" element={<Home />} /> */}
               <Route path="/reset_password" element={<ResetPassword />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/test2" /> // If you ever need to test empty path for redirect
             </Route>
           </Routes>

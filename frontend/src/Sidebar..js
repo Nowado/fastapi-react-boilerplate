@@ -39,6 +39,9 @@ export default props => {
       <Button variant="contained" href="/register" >
         Register
       </Button >
+      <Button variant="contained" href="/privacy-policy">
+        Privacy Policy
+      </Button>
     </Menu >
     </ThemeProvider >
   );
