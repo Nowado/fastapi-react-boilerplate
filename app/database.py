@@ -1,5 +1,5 @@
 from fastapi import Depends
-from typing import AsyncGenerator
+from typing import AsyncGenerator, List
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
 from fastapi_users_db_sqlalchemy.access_token import (
     SQLAlchemyAccessTokenDatabase,
@@ -7,7 +7,7 @@ from fastapi_users_db_sqlalchemy.access_token import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, Mapped, DeclarativeBase
 from sqlalchemy import Column, ForeignKey, Table, Integer, DateTime, Text
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
@@ -21,7 +21,8 @@ engine = create_async_engine(DATABASE_URL_ASYNC)
 
 SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 
 ItemOwner = Table('itemowner',
@@ -44,15 +45,15 @@ ItemAccess = Table('itemaccess',
 
 class ItemTable(Base):
     __tablename__ = "items"
-    id = Column(Integer, primary_key=True, index=True)
-    text = Column('text', Text)
-    owners = relationship("User", secondary=ItemOwner, back_populates="items_owned", lazy='selectin')
-    access_granted = relationship("User", secondary=ItemAccess, back_populates="items_available", lazy='selectin')
+    id: Mapped[int] = Column(Integer, primary_key=True, index=True)
+    text: Mapped[str] = Column(Text, nullable=False)
+    owners: Mapped[List['User']] = relationship("User", secondary=ItemOwner, back_populates="items_owned", lazy='selectin')
+    access_granted: Mapped[List['User']] = relationship("User", secondary=ItemAccess, back_populates="items_available", lazy='selectin')
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
-    items_owned = relationship("ItemTable", secondary=ItemOwner, back_populates="owners", lazy='selectin')
-    items_available = relationship("ItemTable", secondary=ItemAccess, back_populates="access_granted", lazy='selectin')
+    items_owned: Mapped[List[ItemTable]] = relationship("ItemTable", secondary=ItemOwner, back_populates="owners", lazy='selectin')
+    items_available: Mapped[List[ItemTable]] = relationship("ItemTable", secondary=ItemAccess, back_populates="access_granted", lazy='selectin')
 
 
 class AccessToken(SQLAlchemyBaseAccessTokenTableUUID, Base):
